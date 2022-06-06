@@ -31,7 +31,7 @@ fn main() {
             rand::thread_rng().gen_range(range.clone())
         };
         let mut user: u8 = 0;
-        loop {
+        'poo: loop {
             println!("{} {}", dealer_name, dealer);
 
             //initial draw for the user
@@ -56,11 +56,16 @@ fn main() {
                     match dealer.cmp(&17) {
                         Ordering::Less => {
                             dealer += rand::thread_rng().gen_range(range.clone());
-                            println!(
-                                "{} drew a card,\r\n{}'s score is now: {}",
-                                dealer_name, dealer_name, dealer
-                            );
-                            continue;
+                            if dealer > 21 {
+                                println!("{} bust, You Win!", dealer_name);
+                                break 'poo;
+                            } else {
+                                println!(
+                                    "{} drew a card,\r\n{}'s score is now: {}",
+                                    dealer_name, dealer_name, dealer
+                                );
+                                continue;
+                            }
                         }
                         Ordering::Greater => break,
                         Ordering::Equal => break,
