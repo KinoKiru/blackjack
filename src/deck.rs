@@ -1,5 +1,3 @@
-use rand::seq::index;
-
 use crate::card::Card;
 use rand::Rng;
 // For objects
