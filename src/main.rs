@@ -1,8 +1,16 @@
+//module deck &  card
+mod card;
+mod deck;
+
+use deck::Deck;
+
 use crossterm::style::Color;
 use rand::Rng;
 use std::cmp::Ordering;
 use std::io;
 use terminal_menu::{button, label, menu, mut_menu, run};
+
+use crate::card::Card;
 
 fn main() {
     loop {
@@ -25,17 +33,14 @@ fn main() {
         let dealer_name = menu.selected_item_name();
 
         let range = 1..11;
-        let mut dealer: u8 = if dealer_name == "Jerome" {
-            rand::thread_rng().gen_range(19..22)
-        } else {
-            rand::thread_rng().gen_range(range.clone())
-        };
-        let mut user: u8 = 0;
+        let mut deck = Deck::new();
+        let mut dealer: Vec<Card> = vec![deck.pick_random()];
+        let mut user: Vec<Card> = vec![deck.pick_random()];
         'poo: loop {
             println!("{} {}", dealer_name, dealer);
 
             //initial draw for the user
-            user += rand::thread_rng().gen_range(range.clone());
+            user.push(deck.pick_random());
             if user > 21 {
                 println!("bust! \r\n{} won!", dealer_name);
                 break;
@@ -96,4 +101,7 @@ fn main() {
             break;
         }
     }
+
+    //TODO make a total value function which calculated hand total
+    // for each card in the vector return that total value
 }
