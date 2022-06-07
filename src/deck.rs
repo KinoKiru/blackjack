@@ -24,13 +24,13 @@ impl Deck {
                 "C"
             }
             .to_string();
-            let value = value % 13;
+            let value = (value % 13) + 1;
 
             short_name += match value {
-                0 => "A".to_owned(),
-                10 => "J".to_owned(),
-                11 => "Q".to_owned(),
-                12 => "K".to_owned(),
+                11 => "A".to_owned(),
+                12 => "J".to_owned(),
+                13 => "Q".to_owned(),
+                14 => "K".to_owned(),
                 _ => (value + 1_u8).to_string(),
             }
             .as_str();
