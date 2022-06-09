@@ -31,18 +31,18 @@ fn main() {
         let dealer_name = menu.selected_item_name();
         let mut deck = Deck::new();
         let mut dealer: Vec<Card> = vec![deck.pick_random()];
-        let mut user: Vec<Card> = vec![deck.pick_random()];
+        let mut player: Vec<Card> = vec![deck.pick_random()];
         'poo: loop {
-            println!("{} {:?}", dealer_name, dealer);
+            println!("{} has {}", dealer_name, to_string(&dealer));
 
             //initial draw for the user
-            user.push(deck.pick_random());
-            if calculate_hand_size(&user) > 21 {
+            player.push(deck.pick_random());
+            if calculate_hand_size(&player) > 21 {
                 println!("bust! \r\n{} won!", dealer_name);
                 break;
             }
             //ask the user for a action based on there drawn value
-            println!("you drew {:?} what will you do?", user);
+            println!("you drew {} what will you do?", to_string(&player));
 
             println!("stand or hit");
             let mut action = String::new();
@@ -62,8 +62,10 @@ fn main() {
                                 break 'poo;
                             } else {
                                 println!(
-                                    "{} drew a card,\r\n{}'s score is now: {:?}",
-                                    dealer_name, dealer_name, dealer
+                                    "{} drew a card,\r\n{}'s score is now: {}",
+                                    dealer_name,
+                                    dealer_name,
+                                    to_string(&dealer)
                                 );
                                 continue;
                             }
@@ -72,10 +74,10 @@ fn main() {
                         Ordering::Equal => break,
                     }
                 }
-                if calculate_hand_size(&user) > calculate_hand_size(&dealer) {
+                if calculate_hand_size(&player) > calculate_hand_size(&dealer) {
                     println!("You've won!");
                     break;
-                } else if calculate_hand_size(&user) == calculate_hand_size(&dealer) {
+                } else if calculate_hand_size(&player) == calculate_hand_size(&dealer) {
                     println!("Draw!");
                     break;
                 } else {
@@ -97,14 +99,27 @@ fn main() {
             break;
         }
     }
+}
 
-    //TODO make a total value function which calculated hand total
-    // for each card in the vector return that total value
-    fn calculate_hand_size(hand: &Vec<Card>) -> u8 {
-        let mut total_value: u8 = 0;
-        for card in hand {
-            total_value += card.value;
-        }
-        return total_value;
+//TODO make a total value function which calculated hand total
+// for each card in the vector return that total value
+fn calculate_hand_size(hand: &Vec<Card>) -> u8 {
+    let mut total_value: u8 = 0;
+    for card in hand {
+        total_value += card.value;
     }
+    return total_value;
+}
+
+fn to_string(hand: &Vec<Card>) -> String {
+    // for card in hand {
+    //     totalstring += card.short_name.as_str();
+    // }
+    hand.iter()
+        .map(|card| card.short_name.to_owned())
+        .collect::<Vec<String>>()
+        .join(", ")
+        + " ["
+        + calculate_hand_size(hand).to_string().as_str()
+        + "]"
 }

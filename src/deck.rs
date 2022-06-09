@@ -25,11 +25,11 @@ impl Deck {
             let value = (value % 13) + 1;
 
             short_name += match value {
-                11 => "A".to_owned(),
-                12 => "J".to_owned(),
-                13 => "Q".to_owned(),
-                14 => "K".to_owned(),
-                _ => (value + 1_u8).to_string(),
+                1 => "A".to_owned(),
+                11 => "J".to_owned(),
+                12 => "Q".to_owned(),
+                13 => "K".to_owned(),
+                _ => (value).to_string(),
             }
             .as_str();
             cards.push(Card { value, short_name });

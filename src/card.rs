@@ -7,8 +7,9 @@ pub struct Card {
 
 //override to_string with own implementation
 //TODO make a to string
-// impl ToString for Card {
-//     fn to_string(&self) -> String {
-//         return self.short_name;
+// impl Join<String> for Card {
+//     type Output = String;
+//     fn join(slice: &Self, sep: Separator) -> Self::Output {
+//         return slice.short_name.clone() + sep;
 //     }
 // }
