@@ -1,9 +1,8 @@
-//module deck &  card
-mod card;
-mod deck;
+mod model;
 
-use card::Card;
-use deck::Deck;
+use model::card::Card;
+use model::dealer::Dealer;
+use model::deck::Deck;
 
 use crossterm::style::Color;
 use std::cmp::Ordering;
@@ -30,10 +29,10 @@ fn main() {
         let menu = mut_menu(&menu);
         let dealer_name = menu.selected_item_name();
         let mut deck = Deck::new();
-        let mut dealer: Vec<Card> = vec![deck.pick_random()];
+        let mut dealer = Dealer::new(dealer_name.to_string(), &mut deck);
         let mut player: Vec<Card> = vec![deck.pick_random()];
         'poo: loop {
-            println!("{} has {}", dealer_name, to_string(&dealer));
+            println!("{} has {}", dealer_name, to_string(&dealer.hand));
 
             //initial draw for the user
             player.push(deck.pick_random());
@@ -54,10 +53,10 @@ fn main() {
                 continue;
             } else {
                 loop {
-                    match calculate_hand_size(&dealer).cmp(&17) {
+                    match calculate_hand_size(&dealer.hand).cmp(&17) {
                         Ordering::Less => {
-                            dealer.push(deck.pick_random());
-                            if calculate_hand_size(&dealer) > 21 {
+                            dealer.draw(&mut deck);
+                            if calculate_hand_size(&dealer.hand) > 21 {
                                 println!("{} bust, You Win!", dealer_name);
                                 break 'poo;
                             } else {
@@ -65,7 +64,7 @@ fn main() {
                                     "{} drew a card,\r\n{}'s score is now: {}",
                                     dealer_name,
                                     dealer_name,
-                                    to_string(&dealer)
+                                    to_string(&dealer.hand)
                                 );
                                 continue;
                             }
@@ -74,10 +73,10 @@ fn main() {
                         Ordering::Equal => break,
                     }
                 }
-                if calculate_hand_size(&player) > calculate_hand_size(&dealer) {
+                if calculate_hand_size(&player) > calculate_hand_size(&dealer.hand) {
                     println!("You've won!");
                     break;
-                } else if calculate_hand_size(&player) == calculate_hand_size(&dealer) {
+                } else if calculate_hand_size(&player) == calculate_hand_size(&dealer.hand) {
                     println!("Draw!");
                     break;
                 } else {
@@ -105,8 +104,23 @@ fn main() {
 // for each card in the vector return that total value
 fn calculate_hand_size(hand: &Vec<Card>) -> u8 {
     let mut total_value: u8 = 0;
+    let mut amount_aces: u8 = 0;
     for card in hand {
+        if card.value == 1 {
+            amount_aces += 1;
+            continue;
+        }
         total_value += card.value;
+    }
+
+    if amount_aces > 0 {
+        for _ in 0..amount_aces {
+            if total_value < 10 {
+                total_value += 11;
+                continue;
+            }
+            total_value += 1;
+        }
     }
     return total_value;
 }
