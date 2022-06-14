@@ -13,12 +13,12 @@ impl Dealer {
         //created a new instance
         let mut dealer = Dealer { hand, name };
 
-        dealer.draw(deck);
+        dealer.hit(deck);
 
         return dealer;
     }
 
-    pub fn draw(&mut self, deck: &mut Deck) {
+    pub fn hit(&mut self, deck: &mut Deck) {
         if self.name == "Jerome" {
             self.hand.push(deck.black_man_mode());
         } else {

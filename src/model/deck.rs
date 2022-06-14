@@ -51,8 +51,6 @@ impl Deck {
         self.cards.remove(index)
     }
 
-    //TODO make backman pickmode
-
     pub fn black_man_mode(&mut self) -> Card {
         let index = self.cards.iter().position(|card| card.value >= 10).unwrap();
 

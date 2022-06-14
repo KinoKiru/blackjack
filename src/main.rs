@@ -5,9 +5,12 @@ use model::dealer::Dealer;
 use model::deck::Deck;
 
 use crossterm::style::Color;
+use rand::seq::index;
 use std::cmp::Ordering;
 use std::io;
 use terminal_menu::{button, label, menu, mut_menu, run};
+
+use crate::model::player::{self, Player};
 
 fn main() {
     loop {
@@ -30,59 +33,99 @@ fn main() {
         let dealer_name = menu.selected_item_name();
         let mut deck = Deck::new();
         let mut dealer = Dealer::new(dealer_name.to_string(), &mut deck);
-        let mut player: Vec<Card> = vec![deck.pick_random()];
-        'poo: loop {
-            println!("{} has {}", dealer_name, to_string(&dealer.hand));
+        let mut players: Vec<Player> = vec![];
 
-            //initial draw for the user
-            player.push(deck.pick_random());
-            if calculate_hand_size(&player) > 21 {
-                println!("bust! \r\n{} won!", dealer_name);
-                break;
-            }
-            //ask the user for a action based on there drawn value
-            println!("you drew {} what will you do?", to_string(&player));
+        //hoeveel users?
+        let mut amount_players = String::new();
 
-            println!("stand or hit");
-            let mut action = String::new();
+        println!("How many players will be playing?");
+        io::stdin()
+            .read_line(&mut amount_players)
+            .expect("failed to read line");
+
+        for index in 0..amount_players.parse().unwrap() {
+            let mut name = String::new();
+            println!("name of player {}", index);
             io::stdin()
-                .read_line(&mut action)
+                .read_line(&mut name)
                 .expect("failed to read line");
-            action = action.trim().to_string();
-            if action == "hit" {
-                continue;
-            } else {
-                loop {
-                    match calculate_hand_size(&dealer.hand).cmp(&17) {
-                        Ordering::Less => {
-                            dealer.draw(&mut deck);
-                            if calculate_hand_size(&dealer.hand) > 21 {
-                                println!("{} bust, You Win!", dealer_name);
-                                break 'poo;
-                            } else {
-                                println!(
-                                    "{} drew a card,\r\n{}'s score is now: {}",
-                                    dealer_name,
-                                    dealer_name,
-                                    to_string(&dealer.hand)
-                                );
-                                continue;
-                            }
-                        }
-                        Ordering::Greater => break,
-                        Ordering::Equal => break,
+
+            players.push(Player::new(name, &mut deck));
+        }
+
+        println!("{} has {}", dealer_name, to_string(&dealer.hand));
+        for mut player in players {
+            println!("{}'s turn", &player.name);
+            println!("you drew {} what will you do?", to_string(&player.hand));
+
+            loop {
+                println!("stand or hit");
+                let mut action = String::new();
+                io::stdin()
+                    .read_line(&mut action)
+                    .expect("failed to read line");
+                action = action.trim().to_lowercase().to_string();
+
+                if action.starts_with('h') {
+                    player.hit(&mut deck);
+                    println!("you drew {}", to_string(&player.hand));
+                    if calculate_hand_size(&player.hand) > 21 {
+                        println!("{} bust!", &player.name);
+                        break;
                     }
-                }
-                if calculate_hand_size(&player) > calculate_hand_size(&dealer.hand) {
-                    println!("You've won!");
-                    break;
-                } else if calculate_hand_size(&player) == calculate_hand_size(&dealer.hand) {
-                    println!("Draw!");
-                    break;
+                    println!("what will you do?");
                 } else {
-                    println!("You've lost!");
                     break;
                 }
+            }
+        }
+
+        while calculate_hand_size(&dealer.hand) < 17 {
+            dealer.hit(&mut deck);
+            println!(
+                "{} drew a card,\r\n{}'s score is now: {}",
+                dealer_name,
+                dealer_name,
+                to_string(&dealer.hand)
+            );
+        }
+        let dealer_bust: bool = calculate_hand_size(&dealer.hand) > 21;
+        if dealer_bust {
+            println!("{} bust", dealer_name);
+        }
+
+        players.sort_by(|p1, p2| calculate_hand_size(&p2.hand).cmp(&calculate_hand_size(&p1.hand)));
+        players = players
+            .into_iter()
+            .filter(|p| calculate_hand_size(&p.hand) < 21)
+            .collect();
+
+        if !dealer_bust && calculate_hand_size(&players[0].hand) < calculate_hand_size(&dealer.hand)
+        {
+            println!("Dealer wins");
+        } else {
+            let mut index_draw: usize = 0;
+            for index in 0..players.len() - 1 {
+                let p1 = calculate_hand_size(&players[index].hand);
+                let p2 = calculate_hand_size(&players[index + 1].hand);
+                if p1 == p2 {
+                    index_draw = index;
+                } else {
+                    break;
+                }
+            }
+
+            if index_draw == 0 {
+                println!("{} won!", &players[index_draw].name);
+            } else {
+                println!(
+                    "draw between: {}",
+                    players[0..index_draw + 1]
+                        .iter()
+                        .map(|p| p.name.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                );
             }
         }
 
