@@ -44,7 +44,7 @@ fn main() {
 
         for index in 0..amount_players.trim().parse().unwrap() {
             let mut name = String::new();
-            println!("name of player {}", index);
+            println!("name of player {}", index + 1);
             io::stdin()
                 .read_line(&mut name)
                 .expect("failed to read line");
@@ -96,7 +96,7 @@ fn main() {
         players.sort_by(|p1, p2| calculate_hand_size(&p2.hand).cmp(&calculate_hand_size(&p1.hand)));
         players = players
             .into_iter()
-            .filter(|p| calculate_hand_size(&p.hand) < 21)
+            .filter(|p| calculate_hand_size(&p.hand) <= 21)
             .collect();
 
         if !dealer_bust && calculate_hand_size(&players[0].hand) < calculate_hand_size(&dealer.hand)
