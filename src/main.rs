@@ -1,16 +1,15 @@
+//models aka object
 mod model;
-
 use model::card::Card;
 use model::dealer::Dealer;
 use model::deck::Deck;
+use model::player::Player;
 
-use crossterm::style::Color;
-use rand::seq::index;
-use std::cmp::Ordering;
 use std::io;
-use terminal_menu::{button, label, menu, mut_menu, run};
 
-use crate::model::player::{self, Player};
+//menu crates
+use crossterm::style::Color;
+use terminal_menu::{button, label, menu, mut_menu, run};
 
 fn main() {
     loop {
@@ -43,18 +42,18 @@ fn main() {
             .read_line(&mut amount_players)
             .expect("failed to read line");
 
-        for index in 0..amount_players.parse().unwrap() {
+        for index in 0..amount_players.trim().parse().unwrap() {
             let mut name = String::new();
             println!("name of player {}", index);
             io::stdin()
                 .read_line(&mut name)
                 .expect("failed to read line");
 
-            players.push(Player::new(name, &mut deck));
+            players.push(Player::new(name.trim().to_string(), &mut deck));
         }
 
         println!("{} has {}", dealer_name, to_string(&dealer.hand));
-        for mut player in players {
+        for mut player in players.clone() {
             println!("{}'s turn", &player.name);
             println!("you drew {} what will you do?", to_string(&player.hand));
 
@@ -143,8 +142,10 @@ fn main() {
     }
 }
 
-//TODO make a total value function which calculated hand total
-// for each card in the vector return that total value
+/*
+ * Function to calculate handsize based on hand<Vec<Card>>
+ * calculates the value of the aces based on your hand either 1-11
+ */
 fn calculate_hand_size(hand: &Vec<Card>) -> u8 {
     let mut total_value: u8 = 0;
     let mut amount_aces: u8 = 0;
@@ -168,10 +169,10 @@ fn calculate_hand_size(hand: &Vec<Card>) -> u8 {
     return total_value;
 }
 
+/*
+* Returns vector in a readable state for the user
+*/
 fn to_string(hand: &Vec<Card>) -> String {
-    // for card in hand {
-    //     totalstring += card.short_name.as_str();
-    // }
     hand.iter()
         .map(|card| card.short_name.to_owned())
         .collect::<Vec<String>>()

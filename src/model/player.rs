@@ -1,21 +1,17 @@
 use super::{card::Card, deck::Deck};
 
+#[derive(Clone)]
+
 pub struct Player {
     pub name: String,
     pub hand: Vec<Card>,
-    pub has_standed: bool,
 }
 
 impl Player {
     pub fn new(name: String, deck: &mut Deck) -> Self {
         let hand: Vec<Card> = vec![];
-        let has_standed = false;
 
-        let mut player = Player {
-            name,
-            hand,
-            has_standed,
-        };
+        let mut player = Player { name, hand };
         player.hit(deck);
         player.hit(deck);
 
