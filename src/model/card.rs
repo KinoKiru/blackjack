@@ -1,5 +1,4 @@
 #[derive(Debug, Clone)]
-
 pub struct Card {
     pub short_name: String,
     pub value: u8,
